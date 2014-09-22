@@ -12,6 +12,12 @@ class Device:
 		self.availableVMs = self.VMs
 		self.links = []
 
+	# Variables used by path finding algorithm
+		self.distance = 0 # to find the shortest distance from start node
+		self.predecessor = None
+		self.color = 'white' # means that this node is not yet explored
+
+
 # Setter functions
 	def setStatus(self, _status):
 		self.status = _status
@@ -21,6 +27,17 @@ class Device:
 
 	def removeLink(self, link):
 		self.links.remove(link)
+
+	# Functions used by path finding algorithm
+	def setDistance(self, _distance):
+		self.distance = _distance
+
+	def setPredecessor(self, _predecessor):
+		self.predecessor = _predecessor
+
+	def setColor(self, _color):
+		self.color = _color
+				
 
 # Getter functions
 	def getID(self):
@@ -41,19 +58,32 @@ class Device:
 	def getLinks(self):
 		return self.links
 
+	def getNeighbours(self):
+		neighbours = []
+		for link in self.links:
+			neighbours.append(link.getOtherDevice(self))
+		return neighbours
+	
 	# this is only for host devices
 	def getLink(self):
 		return links[0]
+
+	# Functions used by path finding algorithm
+	def getDistance(self):
+		return self.distance
+
+	def getColor(self):
+		return self.color
+
 
 # Utility functions
 	def printInfo(self):
 		print '=========================='
 		print 'ID:       ' + str(self.id)
 		print 'Label:    ' + self.label
-		print 'Status:   ' + self.status
-		if isHost:
+		print 'Status:   %s' % self.status
+		if self.isHost:
 			print 'Host device'
 		else:
 			print 'Switch device'
 		print '=========================='
-		

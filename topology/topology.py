@@ -5,6 +5,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from base.device import Device
 from base.link import Link
+from utils.queue import Queue
 
 from random import randrange, choice, seed
 
@@ -86,6 +87,9 @@ class Topology:
 			self.devices.append(aggr)
 		for core in cores:
 			self.devices.append(core)
+
+		i = len(hosts)
+		self.bfs(hosts[0])
 
 
 	def generateJellyFish(self, attributes):
@@ -196,6 +200,24 @@ class Topology:
 
 						openPorts[i] -= 2
 						break
+
+
+	def bfs(self, start): # breadth-first search starting at 'start' node
+		# As implemented on InteractivePython (using Pythonds library)
+		start.setDistance(0)
+		start.setPredecessor(None)
+		vertQueue = Queue()
+		vertQueue.enqueue(start)
+		while (vertQueue.size() > 0):
+			currentVert = vertQueue.dequeue()
+			for nbr in currentVert.getNeighbours():
+				if (nbr.getColor() == 'white'): # the node is not yet visited
+					nbr.setColor('gray') # marks the node as currently being processed
+					nbr.setDistance(currentVert.getDistance() + 1)
+					nbr.setPredecessor(currentVert)
+					vertQueue.enqueue(nbr)
+			currentVert.setColor('black') # the node has been visited
+			currentVert.printInfo()
 
 
 """
