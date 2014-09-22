@@ -20,7 +20,7 @@ class Device:
 		self.links.append(link)
 
 	def removeLink(self, link):
-		links.remove(link)
+		self.links.remove(link)
 
 # Getter functions
 	def getID(self):
@@ -37,6 +37,9 @@ class Device:
 
 	def getNumPorts(self):
 		return len(self.links)
+
+	def getLinks(self):
+		return self.links
 
 	# this is only for host devices
 	def getLink(self):
