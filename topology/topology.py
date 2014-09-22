@@ -1,5 +1,10 @@
-import base.device
-import base.link
+import sys
+import os.path
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from base.device import Device
+from base.link import Link
 
 from random import randrange, choice, seed
 
@@ -8,14 +13,14 @@ class Topology:
 		self.topologyType = _topologyType
 		self.devices = []
 		self.links = []
-		generateTopology(_topologyType, attributes)
+		self.generateTopology(_topologyType, attributes)
 
 
 	def generateTopology(self, topologyType, attributes):
 		if topologyType == 'FatTree':
-			generateFatTree(attributes);
+			self.generateFatTree(attributes);
 		if topologyType == 'JellyFish':
-			generateJellyFish(attributes);
+			self.generateJellyFish(attributes);
 
 
 	def generateFatTree(self, attributes):
@@ -50,7 +55,7 @@ class Topology:
 					host.addLink(hostLink)
 					tor.addLink(hostLink)
 					hosts.append(host)
-					links.append(hostLink)
+					self.links.append(hostLink)
 				aggrs.append(aggr)
 				tors.append(tor)
 
@@ -61,7 +66,7 @@ class Topology:
 					torLink = Link(l, 'torLink', 1000, tors[k/2*i+j], aggrs[k/2*i+l])
 					tors[k/2*i+j].addLink(torLink)
 					aggrs[k/2*i+l].addLink(torLink)
-					links.append(torLink)
+					self.links.append(torLink)
 
 		# connecting aggr and core switches
 		for i in range(k):
@@ -70,17 +75,17 @@ class Topology:
 					coreLink = Link(l, 'coreLink', 1000, aggrs[k/2*i+j], cores[j/2*j+l])
 					aggrs[k/2*i+j].addLink(coreLink)
 					cores[j/2*j+l].addLink(coreLink)
-					links.append(coreLink)
+					self.links.append(coreLink)
 
 		# populate devices list
 		for host in hosts:
-			devices.append(host)
+			self.devices.append(host)
 		for tor in tors:
-			devices.append(tor)
+			self.devices.append(tor)
 		for aggr in aggrs:
-			devices.append(aggr)
+			self.devices.append(aggr)
 		for core in cores:
-			devices.append(core)
+			self.devices.append(core)
 
 
 	def generateJellyFish(self, attributes):
@@ -91,7 +96,7 @@ class Topology:
 		seed(s)
 		print 'Generating RRG(' + str(N) + "," + str(k) + "," + str(r) + ') Jellyfish topology'
 
-		numServers = N(k-r)
+		numServers = N*(k-r)
 		# make sure that there are at least as many switches as servers
 		assert(N >= numServers)
 		# make sure that number of ports per switch is greater than 1
@@ -126,22 +131,22 @@ class Topology:
 		consecFails = 0
 
 		while switchesLeft > 1 and consecFails < 10:
-			s1 = rangrange(N)
+			s1 = randrange(N)
 			while openPorts[s1] == 0:
-				s1 = rangrange(N)
-			s2 = rangrange(N)
+				s1 = randrange(N)
+			s2 = randrange(N)
 			while openPorts[s2] == 0 or s1 == s2:
-				s2 = rangrange(N)
+				s2 = randrange(N)
 
-			torLink1 = Link(s1.getID(), 'torLink', 1000, switches[s1], switches[s2])
-			torLink2 = Link(s2.getID(), 'torLink', 1000, switches[s2], switches[s1])
-			if torLink1 in links or torLink2 in links:
+			torLink1 = Link(s1, 'torLink', 1000, switches[s1], switches[s2])
+			torLink2 = Link(s2, 'torLink', 1000, switches[s2], switches[s1])
+			if torLink1 in self.links or torLink2 in self.links:
 				consecFails += 1
 			else:
 				consecFails = 0
 				switches[s1].addLink(torLink1)
 				switches[s2].addLink(torLink1)
-				links.append(torLink1)
+				self.links.append(torLink1)
 				openPorts[s1] -= 1
 				openPorts[s2] -= 1
 				if openPorts[s1] == 0:
@@ -154,7 +159,7 @@ class Topology:
 				while openPorts[i] > 1:
 					while True:
 						# incremental expansion
-						rLink = choice(list(links))
+						rLink = choice(list(self.links))
 						index1 = -1
 						index2 = -2
 						for i in range(N):
@@ -164,11 +169,11 @@ class Topology:
 								index2 = i
 						torLink11 = Link(i, 'torLink', 1000, switches[i], switches[index1])
 						torLink12 = Link(i, 'torLink', 1000, switches[index1], switches[i])
-						if torLink11 in links or torLink12 in links:
+						if torLink11 in self.links or torLink12 in self.links:
 							continue
 						torLink21 = Link(i, 'torLink', 1000, switches[i], switches[index2])
 						torLink22 = Link(i, 'torLink', 1000, switches[index2], switches[i])
-						if torLink21 in links or torLink22 in links:
+						if torLink21 in self.links or torLink22 in self.links:
 							continue
 
 						# add new links
@@ -187,7 +192,7 @@ class Topology:
 								index2 = i
 						switches[index1].removeLink(rLink)
 						switches[index2].removeLink(rLink)
-						links.remove(rLink)
+						self.links.remove(rLink)
 
 						openPorts[i] -= 2
 						break
