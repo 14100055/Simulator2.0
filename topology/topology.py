@@ -88,9 +88,6 @@ class Topology:
 		for core in cores:
 			self.devices.append(core)
 
-		i = len(hosts)
-		self.bfs(hosts[0])
-
 
 	def generateJellyFish(self, attributes):
 		N = attributes[0]

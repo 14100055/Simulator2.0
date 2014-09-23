@@ -11,6 +11,7 @@ if __name__ == '__main__':
 		attributes = []
 		attributes.append(int(raw_input('Enter value of k: ')))
 		topology = Topology('FatTree', attributes)
+		topology.bfs(topology.devices[0])
 	elif topology_type == 'JellyFish' or topology_type == 'j':
 		attributes = []
 		attributes.append(int(raw_input('Enter value of N: ')))
