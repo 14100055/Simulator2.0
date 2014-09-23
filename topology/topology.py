@@ -204,6 +204,7 @@ class Topology:
 
 	def bfs(self, start): # breadth-first search starting at 'start' node
 		# As implemented on InteractivePython (using Pythonds library)
+		print "Starting BFS..."
 		start.setDistance(0)
 		start.setPredecessor(None)
 		vertQueue = Queue()
