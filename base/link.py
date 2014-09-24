@@ -1,10 +1,10 @@
-import base.device
+from component import Component
+import device
 
-class Link:
+class Link(Component):
 	def __init__(self, _id, _label, _cap, _device1, _device2):
-		self.id = _id
-		self.label = _label
-		self.status = True
+		Component.__init__(self, _id, _label)
+		self.compType = 'link'
 		self.totalCap = _cap
 		self.availableCapUp = 0
 		self.availableCapDown = 0
@@ -13,9 +13,6 @@ class Link:
 		self.flows = []
 
 # Setter functions
-	def setStatus(self, _status):
-		self.status = _status
-
 	def setUpBW(self, _up):
 		self.availableCapUp += _up
 
@@ -23,15 +20,6 @@ class Link:
 		self.availableCapDown += _down
 
 # Getter functions
-	def getID(self):
-		return self.id;
-
-	def getLabel(self):
-		return self.label
-
-	def getStatus(self):
-		return self.status
-
 	def getDownSwitch(self):
 		return self.device1
 

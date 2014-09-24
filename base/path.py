@@ -1,5 +1,5 @@
-import base.link
-import base.device
+import link
+import device
 
 class Path:
 	def __init__(self, _id, _label, _isPrimary):

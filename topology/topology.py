@@ -1,12 +1,10 @@
-import sys
-import os.path
-
+import sys, os.path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from base.device import Device
 from base.link import Link
 
-from random import randrange, choice, seed
+import random
 
 class Topology:
 	def __init__(self, _topologyType, attributes):
@@ -14,6 +12,21 @@ class Topology:
 		self.devices = []
 		self.links = []
 		self.generateTopology(_topologyType, attributes)
+
+	def getDevices(self):
+		return self.devices
+	def getLinks(self):
+		return self.links
+	def setDevices(self, _devices):
+		self.devices = _devices
+	def setLinks(self, _links):
+		self.links = _links
+	def getHosts(self):
+		hosts = []
+		for device in self.devices:
+			if device.getLabel() == 'host':
+				hosts.append(device)
+		return hosts
 
 
 	def generateTopology(self, topologyType, attributes):
@@ -51,7 +64,7 @@ class Topology:
 				for h in range(k/2):
 					hostName = 'h_' + str(pod+1) + '_' + str(sw+1) + '_' + str(h+1)
 					host = Device(hostName, 'host', True)
-					hostLink = Link(h, 'hostLink', 1000, host, tor)
+					hostLink = Link(h, 'torLink', 1000, host, tor)
 					host.addLink(hostLink)
 					tor.addLink(hostLink)
 					hosts.append(host)
@@ -63,7 +76,7 @@ class Topology:
 		for i in range(k):
 			for j in range(k/2):
 				for l in range(k/2):
-					torLink = Link(l, 'torLink', 1000, tors[k/2*i+j], aggrs[k/2*i+l])
+					torLink = Link(l, 'aggrLink', 1000, tors[k/2*i+j], aggrs[k/2*i+l])
 					tors[k/2*i+j].addLink(torLink)
 					aggrs[k/2*i+l].addLink(torLink)
 					self.links.append(torLink)
@@ -93,10 +106,10 @@ class Topology:
 		k = attributes[1]
 		r = attributes[2]
 		s = attributes[3]
-		seed(s)
+		# seed(s)
 		print 'Generating RRG(' + str(N) + "," + str(k) + "," + str(r) + ') Jellyfish topology'
 
-		numServers = N*(k-r)
+		numServers = N(k-r)
 		# make sure that there are at least as many switches as servers
 		assert(N >= numServers)
 		# make sure that number of ports per switch is greater than 1
@@ -123,7 +136,7 @@ class Topology:
 			hostLink = Link(i, 'hostLink', 1000, servers[i], switches[i])
 			servers[i].addLink(hostLink)
 			switches[i].addLink(hostLink)
-			links.append(hostLink)
+			self.links.append(hostLink)
 			openPorts[i] -= 1
 
 		# manage the potential links, fully populate the set before creating
@@ -131,15 +144,15 @@ class Topology:
 		consecFails = 0
 
 		while switchesLeft > 1 and consecFails < 10:
-			s1 = randrange(N)
+			s1 = rangrange(N)
 			while openPorts[s1] == 0:
-				s1 = randrange(N)
-			s2 = randrange(N)
+				s1 = rangrange(N)
+			s2 = rangrange(N)
 			while openPorts[s2] == 0 or s1 == s2:
-				s2 = randrange(N)
+				s2 = rangrange(N)
 
-			torLink1 = Link(s1, 'torLink', 1000, switches[s1], switches[s2])
-			torLink2 = Link(s2, 'torLink', 1000, switches[s2], switches[s1])
+			torLink1 = Link(s1.getID(), 'torLink', 1000, switches[s1], switches[s2])
+			torLink2 = Link(s2.getID(), 'torLink', 1000, switches[s2], switches[s1])
 			if torLink1 in self.links or torLink2 in self.links:
 				consecFails += 1
 			else:
@@ -159,7 +172,7 @@ class Topology:
 				while openPorts[i] > 1:
 					while True:
 						# incremental expansion
-						rLink = choice(list(self.links))
+						rLink = random.choice(list(links))
 						index1 = -1
 						index2 = -2
 						for i in range(N):
@@ -197,28 +210,8 @@ class Topology:
 						openPorts[i] -= 2
 						break
 
+		for server in servers:
+			self.devices.append(server)
+		for switch in switches:
+			self.devices.append(switch)
 
-"""
-		tors = []
-		hosts = []
-
-		for rack in range(N):
-			torName = 't_' + str(rack+1)
-			tor = Device(torName, 'tor', False)
-			for h in range(k-r):
-				hostName = 'h_' + str(rack+1) + '_' + str(s+1)
-				host = Device(hostName, 'host', True)
-				hostLink = Link(h, 'hostLink', 1000, host, tor)
-				host.addLink(hostLink)
-				tor.addLink(hostLink)
-				hosts.append(host)
-				devices.append(host)
-				links.append(hostLink)
-			tors.append(tor)
-			devices.append(tor)
-
-		for device in devices:
-			if device.getLabel() == 'tor':
-				for i in range(r):
-					print 'Create \'r\' links from this ToR to \'r\' other ToR'
-"""
