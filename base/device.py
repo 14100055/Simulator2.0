@@ -75,6 +75,9 @@ class Device:
 	def getColor(self):
 		return self.color
 
+	def getPredecessor(self):
+		return self.predecessor
+
 
 # Utility functions
 	def printInfo(self):

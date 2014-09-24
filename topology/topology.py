@@ -199,9 +199,10 @@ class Topology:
 						break
 
 
-	def bfs(self, start): # breadth-first search starting at 'start' node
+	def bfs(self): # breadth-first search starting at 'start' node
 		# As implemented on InteractivePython (using Pythonds library)
 		print "Starting BFS..."
+		start = self.devices[0]
 		start.setDistance(0)
 		start.setPredecessor(None)
 		vertQueue = Queue()
@@ -216,6 +217,45 @@ class Topology:
 					vertQueue.enqueue(nbr)
 			currentVert.setColor('black') # the node has been visited
 			currentVert.printInfo()
+
+
+
+	def findPath(self, start, end): # breadth-first search starting at 'start' node
+		# As implemented on InteractivePython (using Pythonds library)
+		print "Finding path from %s to %s" % (start.id, end.id)
+		
+		start.setDistance(0)
+		start.setPredecessor(None)
+		vertQueue = Queue()
+		vertQueue.enqueue(start)
+		while (vertQueue.size() > 0):
+			currentVert = vertQueue.dequeue()
+			
+			if currentVert == end:
+				currentVert.setColor('black')
+				path = []
+				while currentVert.getPredecessor() != None:
+					path.append(currentVert.getPredecessor())
+					currentVert = currentVert.getPredecessor()
+				return path
+			
+			for nbr in currentVert.getNeighbours():
+
+				if nbr == end:
+					currentVert.setColor('black')
+					path = []
+					while nbr.getPredecessor() != None:
+						path.append(nbr.getPredecessor())
+						nbr = nbr.getPredecessor()
+					return path
+
+				if (nbr.getColor() == 'white'): # the node is not yet visited
+					nbr.setColor('gray') # marks the node as currently being processed
+					nbr.setDistance(currentVert.getDistance() + 1)
+					nbr.setPredecessor(currentVert)
+					vertQueue.enqueue(nbr)
+			currentVert.setColor('black') # the node has been visited
+			# currentVert.printInfo()
 
 
 """
