@@ -1,9 +1,4 @@
-import sys
-import os.path
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
-from base.device import device
+import device
 
 class Traffic:
 	def __init__(self, _id, _label, _start, _active, _rate, _size):
